@@ -1,0 +1,224 @@
+--- kernel-source/arch/arm/boot/dts/aspeed-bmc-opp-olympus.dts	1969-12-31 19:00:00.000000000 -0500
++++ kernel-source_bk/arch/arm/boot/dts/aspeed-bmc-opp-olympus.dts	2018-07-27 17:24:34.152655984 -0400
+@@ -0,0 +1,221 @@
++// SPDX-License-Identifier: GPL-2.0+
++/dts-v1/;
++
++#include "aspeed-g4.dtsi"
++#include <dt-bindings/gpio/aspeed-gpio.h>
++
++/ {
++	model = "Olympus BMC";
++	compatible = "Microsoft,olympus-bmc", "aspeed,ast2400";
++
++	chosen {
++		stdout-path = &uart5;
++		bootargs = "console=ttyS4,115200 earlyprintk";
++	};
++
++	memory@40000000 {
++		reg = <0x40000000 0x20000000>;
++	};
++
++	reserved-memory {
++		#address-cells = <1>;
++		#size-cells = <1>;
++		ranges;
++
++		vga_memory: framebuffer@5f000000 {
++			no-map;
++			reg = <0x5f000000 0x01000000>; /* 16M */
++		};
++		flash_memory: region@98000000 {
++			no-map;
++			reg = <0x98000000 0x01000000>; /* 16MB */
++		};
++	};
++
++	leds {
++		compatible = "gpio-leds";
++
++		bmc_heartbeat {
++			gpios = <&gpio ASPEED_GPIO(B, 0) GPIO_ACTIVE_LOW>;
++		};
++
++		power_green {
++			gpios = <&gpio ASPEED_GPIO(U, 2) GPIO_ACTIVE_HIGH>;
++		};
++
++		power_amber {
++			gpios = <&gpio ASPEED_GPIO(U, 3) GPIO_ACTIVE_HIGH>;
++		};
++
++		identify {
++			gpios = <&gpio ASPEED_GPIO(Q, 5) GPIO_ACTIVE_LOW>;
++		};
++
++		fault {
++			gpios = <&gpio ASPEED_GPIO(A, 1) GPIO_ACTIVE_LOW>;
++		};
++	};
++
++/*	gpio-keys {
++		compatible = "gpio-keys";
++
++		checkstop {
++			label = "checkstop";
++			gpios = <&gpio ASPEED_GPIO(P, 5) GPIO_ACTIVE_LOW>;
++			linux,code = <ASPEED_GPIO(P, 5)>;
++		};
++	}; */
++
++	iio-hwmon {
++		compatible = "iio-hwmon";
++		io-channels = <&adc 0>, <&adc 1>, <&adc 2>, <&adc 3>,
++		<&adc 4>, <&adc 5>, <&adc 6>, <&adc 7>;
++	};
++};
++
++&adc {
++	status = "okay";
++};
++
++&fmc {
++	status = "okay";
++	flash@0 {
++		status = "okay";
++		m25p,fast-read;
++		label = "bmc";
++#include "openbmc-flash-layout.dtsi"
++	};
++};
++
++&spi {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_spi1debug_default>;
++
++	flash@0 {
++		status = "okay";
++		m25p,fast-read;
++		label = "pnor";
++	};
++};
++
++&pinctrl {
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_flbusy_default &pinctrl_flwp_default
++
++			&pinctrl_vgahs_default &pinctrl_vgavs_default
++			&pinctrl_ddcclk_default &pinctrl_ddcdat_default>;
++};
++
++&uart5 {
++	status = "okay";
++};
++
++&mac0 {
++	status = "okay";
++
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_rgmii1_default &pinctrl_mdio1_default>;
++};
++
++&i2c0 {
++	status = "okay";
++};
++&i2c1 {
++	status = "okay";
++	tmp423@4c {
++		compatible = "ti,tmp423";
++		reg = <0x4c>;
++	};
++};
++
++&i2c2 {
++	status = "okay";
++};
++
++&i2c3 {
++	status = "okay";
++};
++
++&i2c4 {
++	status = "okay";
++	#address-cells = <1>;
++	#size-cells = <0>;
++	clock-frequency = <100000>;
++	slave-mqueue@20 {
++		compatible = "slave-ipmb";
++		reg = <0x40000020>;
++	};
++};
++
++&i2c5 {
++	status = "okay";
++};
++
++&i2c6 {
++	status = "okay";
++	tmp423@4c {
++		compatible = "ti,tmp423";
++		reg = <0x4c>;
++	};
++};
++
++&i2c7 {
++	status = "okay";
++};
++
++&i2c8 {
++	status = "okay";
++};
++
++&vuart {
++	status = "okay";
++};
++
++&wdt2 {
++	status = "okay";
++};
++
++&lpc_ctrl {
++        status = "okay";
++        memory-region = <&flash_memory>;
++        flash = <&spi>;
++};
++
++&mbox {
++        status = "okay";
++};
++
++&pwm_tacho {
++	status = "okay";
++	pinctrl-names = "default";
++	pinctrl-0 = <&pinctrl_pwm0_default
++		&pinctrl_pwm1_default
++		&pinctrl_pwm2_default
++		&pinctrl_pwm3_default>;
++       fan@0 {
++               reg = <0x00>;
++               aspeed,fan-tach-ch = /bits/ 8 <0x00>;
++       };
++       fan@1 {
++               reg = <0x01>;
++               aspeed,fan-tach-ch = /bits/ 8 <0x01>;
++       };
++       fan@2 {
++               reg = <0x02>;
++               aspeed,fan-tach-ch = /bits/ 8 <0x02>;
++       };
++       fan@3 {
++               reg = <0x03>;
++               aspeed,fan-tach-ch = /bits/ 8 <0x03>;
++       };
++       fan@4 {
++               reg = <0x04>;
++               aspeed,fan-tach-ch = /bits/ 8 <0x04>;
++       };
++       fan@5 {
++               reg = <0x05>;
++               aspeed,fan-tach-ch = /bits/ 8 <0x05>;
++       };
++};
++
