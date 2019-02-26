@@ -1,0 +1,41 @@
+--- kernel-source/arch/arm/boot/dts/aspeed-g5.dtsi	2019-01-25 13:53:13.396562394 -0500
++++ kernel-source_mod/arch/arm/boot/dts/aspeed-g5.dtsi	2019-01-25 13:54:03.712435919 -0500
+@@ -201,6 +201,30 @@
+ 			status = "disabled";
+ 		};
+ 
++                videocap: videocap@0x1e700000 {
++                        compatible = "aspeed,aspeed-videocap";
++                        reg = < 0x1e700000 0x1000>;
++                        interrupts = <7>;
++                        status = "ok";
++                };
++
++                usb_hub: usbhub@1e6a0000 {
++                        compatible = "aspeed,aspeed-usbhub";
++                        reg = <0x1e6a0000 0x01000>;
++                        interrupts = <5>;
++                        status = "ok";
++                };
++
++		espi: espi@1e6ee000 {
++			compatible = "aspeed,ast2500-espi-slave";
++			reg = <0x1e6ee000 0x100>;
++			interrupts = <23>;
++			clocks = <&syscon ASPEED_CLK_GATE_ESPICLK>;
++			pinctrl-names = "default";
++			pinctrl-0 = <&pinctrl_espi_default>;
++			status = "disabled";
++		};
++
+ 		apb {
+ 			compatible = "simple-bus";
+ 			#address-cells = <1>;
+@@ -426,6 +450,7 @@
+ 						compatible = "aspeed,ast2500-ibt-bmc";
+ 						reg = <0xc0 0x18>;
+ 						interrupts = <8>;
++						status = "disabled";
+ 					};
+ 
+ 					sio_regs: regs {
